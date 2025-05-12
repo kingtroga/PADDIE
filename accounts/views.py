@@ -8,7 +8,10 @@ from .forms import UserRegisterForm, UserProfileForm
 from .models import WhatsAppGroup
 from django.contrib.auth import logout
 from django.views.decorators.http import require_http_methods
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
+import json
 
 @require_http_methods(["GET", "POST"])
 def custom_logout(request):
@@ -132,6 +135,39 @@ def whatsapp_groups(request):
         'local_groups': local_groups.exclude(id__in=lga_groups.values_list('id', flat=True)),
         'national_groups': national_groups
     })
+
+@login_required
+@require_POST
+@csrf_protect
+def join_whatsapp_group(request):
+    """Add a WhatsApp group to the user's profile"""
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id')
+        
+        # Get the group
+        group = WhatsAppGroup.objects.get(id=group_id)
+        
+        # Add it to user's profile if not already added
+        if group not in request.user.profile.whatsapp_groups.all():
+            request.user.profile.whatsapp_groups.add(group)
+            request.user.profile.joined_whatsapp_group = True
+            request.user.profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'You have joined the group successfully!'
+        })
+    except WhatsAppGroup.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Group not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 def handler404(request, exception):
     return render(request, 'errors/404.html', status=404)

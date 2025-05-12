@@ -16,4 +16,5 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),  # Use custom logout view
     path('profile/', views.profile, name='profile'),
     path('whatsapp-groups/', views.whatsapp_groups, name='whatsapp_groups'),
+    path('join-whatsapp-group/', views.join_whatsapp_group, name='join_whatsapp_group'),
 ]

@@ -12,6 +12,20 @@
     </div>
 </div>
 
+<!-- Thank you modal -->
+<div id="thankYouModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-800">Thank You!</h3>
+        </div>
+        <div class="p-6 text-center">
+            <div class="text-5xl mb-4">😊</div>
+            <p class="text-gray-700 mb-4">You've successfully joined the group! You'll be redirected to WhatsApp shortly.</p>
+            <button id="closeModal" class="bg-primary text-white font-medium px-4 py-2 rounded-md hover:bg-primary-dark transition">Close</button>
+        </div>
+    </div>
+</div>
+
 <div class="bg-gray-50 py-8 sm:py-10 md:py-12">
     <div class="max-w-4xl mx-auto px-4">
         {% if lga_groups %}
@@ -30,9 +44,12 @@
                     <div class="sm:ml-4 text-center sm:text-left">
                         <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{{ group.name }}</h4>
                         <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{{ group.description }}</p>
-                        <a href="{{ group.link }}" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                        <button 
+                            class="join-group-btn inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                            data-group-id="{{ group.id }}"
+                            data-group-link="{{ group.link }}">
                             Join Group
-                        </a>
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -56,9 +73,12 @@
                     <div class="sm:ml-4 text-center sm:text-left">
                         <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{{ group.name }}</h4>
                         <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{{ group.description }}</p>
-                        <a href="{{ group.link }}" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                        <button 
+                            class="join-group-btn inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                            data-group-id="{{ group.id }}"
+                            data-group-link="{{ group.link }}">
                             Join Group
-                        </a>
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -82,9 +102,12 @@
                     <div class="sm:ml-4 text-center sm:text-left">
                         <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{{ group.name }}</h4>
                         <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{{ group.description }}</p>
-                        <a href="{{ group.link }}" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                        <button 
+                            class="join-group-btn inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                            data-group-id="{{ group.id }}"
+                            data-group-link="{{ group.link }}">
                             Join Group
-                        </a>
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -106,4 +129,75 @@
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the modal
+        const modal = document.getElementById('thankYouModal');
+        const closeModal = document.getElementById('closeModal');
+        
+        // Close modal event
+        closeModal.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+        
+        // Handle join group buttons
+        const joinButtons = document.querySelectorAll('.join-group-btn');
+        joinButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const groupId = this.getAttribute('data-group-id');
+                const groupLink = this.getAttribute('data-group-link');
+                
+                // AJAX request to join the group
+                fetch('/accounts/join-whatsapp-group/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        group_id: groupId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show thank you modal
+                        modal.classList.remove('hidden');
+                        
+                        // Redirect to WhatsApp after a delay
+                        setTimeout(function() {
+                            window.open(groupLink, '_blank');
+                            modal.classList.add('hidden');
+                        }, 2000);
+                    } else {
+                        alert('There was an error joining the group. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error processing your request. Please try again.');
+                });
+            });
+        });
+        
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %}
