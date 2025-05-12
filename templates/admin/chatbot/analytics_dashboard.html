@@ -177,12 +177,12 @@
 {% block content %}
 <div id="content-main">
   <div class="dashboard-container">
-    <h1>Chat Analytics Dashboard</h1>
+    <h1 style="color: black;">Chat Analytics Dashboard</h1>
     
     <!-- Date Range Selector -->
     <div class="date-range-selector">
       <form method="get">
-        <label for="date-range">Time Period:</label>
+        <label for="date-range" style="color: black;">Time Period:</label>
         <select id="date-range" name="date_range">
           <option value="today" {% if selected_range == 'today' %}selected{% endif %}>Today</option>
           <option value="week" {% if selected_range == 'week' %}selected{% endif %}>Last 7 Days</option>
@@ -207,25 +207,25 @@
       <div class="stat-card">
         <div class="stat-label">Total Chat Sessions</div>
         <div class="stat-number">{{ total_sessions }}</div>
-        <div>{{ new_sessions_percent }}% increase from previous period</div>
+        <div style="color: black;">{{ new_sessions_percent }}% increase from previous period</div>
       </div>
       
       <div class="stat-card">
         <div class="stat-label">Total Messages</div>
         <div class="stat-number">{{ total_messages }}</div>
-        <div>{{ messages_per_session }} avg. per session</div>
+        <div style="color: black;">{{ messages_per_session }} avg. per session</div>
       </div>
       
       <div class="stat-card">
         <div class="stat-label">Active Users</div>
         <div class="stat-number">{{ active_users }}</div>
-        <div>{{ new_users }} new in this period</div>
+        <div style="color: black;">{{ new_users }} new in this period</div>
       </div>
       
       <div class="stat-card">
         <div class="stat-label">Products Mentioned</div>
         <div class="stat-number">{{ products_mentioned }}</div>
-        <div>in {{ sessions_with_products }} sessions</div>
+        <div style="color: black;">in {{ sessions_with_products }} sessions</div>
       </div>
     </div>
     
@@ -261,12 +261,12 @@
         {% if top_products %}
           {% for product in top_products %}
             <div class="top-list-item">
-              <span class="top-list-item-label">{{ product.name }}</span>
+              <span class="top-list-item-label" style="color: black;">{{ product.name }}</span>
               <span class="top-list-item-value">{{ product.count }} mentions</span>
             </div>
           {% endfor %}
         {% else %}
-          <p>No product mentions in this period</p>
+          <p style="color: black;">No product mentions in this period</p>
         {% endif %}
       </div>
       
@@ -275,22 +275,22 @@
         {% if top_users %}
           {% for user in top_users %}
             <div class="top-list-item">
-              <span class="top-list-item-label">{{ user.name }}</span>
+              <span class="top-list-item-label" style="color: black;">{{ user.name }}</span>
               <span class="top-list-item-value">{{ user.sessions }} sessions</span>
             </div>
           {% endfor %}
         {% else %}
-          <p>No user data available for this period</p>
+          <p style="color: black;">No user data available for this period</p>
         {% endif %}
       </div>
     </div>
     
     <!-- Loading Indicator -->
-    <div class="loading" id="loading-indicator">Loading analytics data...</div>
+    <div class="loading" id="loading-indicator" >Loading analytics data...</div>
     
     <!-- Metadata -->
     <div class="metadata">
-      <p>Data last updated: {{ last_updated }}</p>
+      <p style="color: black;">Data last updated: {{ last_updated }}</p>
     </div>
   </div>
 </div>
