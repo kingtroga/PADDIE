@@ -26,10 +26,7 @@ class UserProfile(models.Model):
     categories_of_interest = models.ManyToManyField(Category, related_name="interested_users")
     language_choices = [
         ('en', 'English'),
-        ('yo', 'Yoruba'),
         ('pcm', 'Pidgin'),
-        ('ha', 'Hausa'),
-        ('ig', 'Igbo'),
     ]
     preferred_language = models.CharField(max_length=3, choices=language_choices, default='en')
     joined_whatsapp_group = models.BooleanField(default=False)

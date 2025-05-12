@@ -45,6 +45,9 @@
                     <!-- Responsive logo sizing -->
                     <img src="https://askpaddie.com/wp-content/uploads/2025/04/canva-website-design-3-1536x399.png" alt="Paddie" class="h-6 sm:h-7 md:h-8">
                 </a>
+
+                
+                
                 
                 <!-- Desktop menu with improved spacing -->
                 <div class="hidden md:flex items-center space-x-4 lg:space-x-8">
@@ -60,9 +63,9 @@
                         <a href="/services/" class="text-white hover:text-gray-200 font-medium px-2 py-2 text-sm lg:text-base flex items-center">
                             SERVICES
                             <span class="inline-block w-1.5 h-1.5 bg-secondary ml-1"></span>
-                        </a>
-                        <a href="/contact/" class="text-white hover:text-gray-200 font-medium px-2 py-2 text-sm lg:text-base flex items-center">
-                            CONTACT
+                        </a>          
+                        <a href="{% url 'chat_home' %}" class="text-white hover:text-gray-200 font-medium px-2 py-2 text-sm lg:text-base flex items-center">
+                            ASK PADDIE
                             <span class="inline-block w-1.5 h-1.5 bg-secondary ml-1"></span>
                         </a>
                     </div>
@@ -112,7 +115,7 @@
     </nav>
     
     <!-- Messages -->
-    {% if messages %}
+    {% if messages and request.resolver_match.url_name != 'chat_home' %}
     <div class="fixed top-4 right-4 z-50 w-80 max-w-full px-2 sm:px-0">
         {% for message in messages %}
             <div class="bg-white border-l-4 {% if message.tags == 'success' %}border-primary{% elif message.tags == 'error' %}border-red-500{% else %}border-blue-500{% endif %} p-4 mb-3 shadow-md rounded-md" role="alert">

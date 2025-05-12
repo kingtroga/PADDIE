@@ -10,10 +10,7 @@ class ChatSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     language = models.CharField(max_length=10, 
                                 choices=[('en', 'English'), 
-                                         ('pcm', 'Pidgin'), 
-                                         ('yo', 'Yoruba'), 
-                                         ('ha', 'Hausa'),
-                                         ('ig', 'Igbo')],
+                                         ('pcm', 'Pidgin'), ],
                                 default='en')
     
     def __str__(self):
