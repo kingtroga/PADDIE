@@ -67,10 +67,20 @@
                         </a>
                     </div>
                     
-                    <a href="{% url 'login' %}" class="bg-white text-dark font-medium px-4 py-1.5 lg:px-5 lg:py-2 text-sm lg:text-base rounded-full hover:bg-gray-100 transition">
-                        Contact Us
-                    </a>
-                </div>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="text-white hover:text-gray-200 font-medium px-2 py-2 text-sm lg:text-base flex items-center">
+                            PROFILE
+                            <span class="inline-block w-1.5 h-1.5 bg-secondary ml-1"></span>
+                        </a>
+                        <a href="{% url 'logout' %}" class="bg-white text-dark font-medium px-4 py-1.5 lg:px-5 lg:py-2 text-sm lg:text-base rounded-full hover:bg-gray-100 transition">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="bg-white text-dark font-medium px-4 py-1.5 lg:px-5 lg:py-2 text-sm lg:text-base rounded-full hover:bg-gray-100 transition">
+                            Login
+                        </a>
+                    {% endif %}
+</div>
                 
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
