@@ -1,0 +1,23 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}403 - Permission Denied | AskPaddie{% endblock %}
+
+{% block content %}
+<div class="min-h-[60vh] flex flex-col items-center justify-center px-4 py-12">
+    <div class="text-center max-w-lg">
+        <h1 class="text-6xl font-bold text-dark mb-4">403</h1>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Permission Denied</h2>
+        <p class="text-gray-600 mb-8">You don't have permission to access this page. If you believe this is an error, please contact support.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="/" class="bg-primary text-white font-medium px-6 py-3 rounded-full hover:bg-primary-dark transition shadow-md">
+                Return to Home
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="bg-dark text-white font-medium px-6 py-3 rounded-full hover:opacity-90 transition shadow-md">
+                Login
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

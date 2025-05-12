@@ -1,0 +1,760 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}">
+  <style type="text/css">
+    /* Core styles */
+    :root {
+      --primary-color: #417690;
+      --primary-light: rgba(65, 118, 144, 0.2);
+      --primary-dark: #2d5266;
+      --user-color: #ff9f40;
+      --ai-color: #36a2eb;
+      --text-color: #202020;
+      --text-light: #666;
+      --text-muted: #999;
+      --bg-light: #f8f8f8;
+      --card-bg: #ffffff;
+      --border-color: #eee;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --border-radius: 6px;
+      --spacing-xs: 5px;
+      --spacing-sm: 10px;
+      --spacing-md: 15px;
+      --spacing-lg: 20px;
+      --spacing-xl: 30px;
+    }
+    
+    .dashboard-container {
+      padding: var(--spacing-lg);
+      background: var(--bg-light);
+      border-radius: var(--border-radius);
+      margin-bottom: var(--spacing-lg);
+      width: 100%;
+      overflow-x: hidden;
+    }
+    
+    /* Heading styles */
+    .dashboard-title {
+      color: var(--text-color);
+      margin-bottom: var(--spacing-lg);
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .section-heading {
+      color: var(--text-color);
+      margin: var(--spacing-xl) 0 var(--spacing-md);
+      font-size: 20px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-xs);
+    }
+    
+    /* Stat cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .stat-number {
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: bold;
+      margin: 10px 0;
+      color: var(--primary-color);
+    }
+    
+    .stat-label {
+      color: var(--text-light);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .stat-info {
+      color: var(--text-color);
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    /* Chart containers */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .chart-container {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--spacing-lg);
+      height: 300px;
+    }
+    
+    .chart-title {
+      font-size: 18px;
+      margin-bottom: var(--spacing-md);
+      color: var(--primary-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-sm);
+    }
+    
+    /* Top lists */
+    .top-list {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .top-list-title {
+      font-size: 18px;
+      margin-bottom: var(--spacing-md);
+      color: var(--primary-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-sm);
+    }
+    
+    .top-list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .top-list-item:last-child {
+      border-bottom: none;
+    }
+    
+    .top-list-item-label {
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    
+    .top-list-item-value {
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+    
+    /* Date range selector */
+    .date-range-selector {
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .date-range-selector label {
+      color: var(--text-color);
+      margin-right: var(--spacing-xs);
+    }
+    
+    .date-range-selector select,
+    .date-range-selector input[type="date"] {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-right: var(--spacing-sm);
+    }
+    
+    .date-range-selector button {
+      padding: 6px 15px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .date-range-selector button:hover {
+      background: var(--primary-dark);
+    }
+    
+    .date-selector-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    /* Empty state */
+    .empty-state {
+      padding: var(--spacing-lg);
+      text-align: center;
+      color: var(--text-light);
+    }
+    
+    /* Metadata */
+    .metadata {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: var(--spacing-lg);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: var(--spacing-md);
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--spacing-md);
+      }
+      
+      .date-range-selector {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .date-range-selector select,
+      .date-range-selector input[type="date"] {
+        width: 100%;
+        margin-bottom: var(--spacing-sm);
+      }
+      
+      #custom-date-inputs {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .chart-container {
+        height: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .date-range-selector {
+        padding: var(--spacing-sm);
+      }
+      
+      .chart-container {
+        height: 220px;
+      }
+      
+      .stat-card,
+      .top-list,
+      .chart-container {
+        padding: var(--spacing-sm);
+      }
+      
+      .dashboard-title {
+        font-size: 20px;
+      }
+    }
+  </style>
+  <!-- Include Chart.js for visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="dashboard-container">
+    <h1 class="dashboard-title">SafetyPlus Analytics Dashboard</h1>
+    
+    <!-- Date Range Selector -->
+    <div class="date-range-selector">
+      <form method="get" style="width: 100%;">
+        <div class="date-selector-wrap">
+          <label for="date-range">Time Period:</label>
+          <select id="date-range" name="date_range">
+            <option value="today" {% if selected_range == 'today' %}selected{% endif %}>Today</option>
+            <option value="week" {% if selected_range == 'week' %}selected{% endif %}>Last 7 Days</option>
+            <option value="month" {% if selected_range == 'month' %}selected{% endif %}>Last 30 Days</option>
+            <option value="custom" {% if selected_range == 'custom' %}selected{% endif %}>Custom Range</option>
+          </select>
+          
+          <div id="custom-date-inputs" style="display: {% if selected_range == 'custom' %}flex{% else %}none{% endif %}; gap: 10px; align-items: center;">
+            <label for="start-date">From:</label>
+            <input type="date" id="start-date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+            
+            <label for="end-date">To:</label>
+            <input type="date" id="end-date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+          </div>
+          
+          <button type="submit">Apply</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Chat Statistics Section -->
+    <h2 class="section-heading">Chat Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Chat Sessions</div>
+        <div class="stat-number">{{ total_sessions }}</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-number">{{ total_messages }}</div>
+        <div class="stat-info">{{ avg_messages_per_session }} avg. per session</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">User Messages</div>
+        <div class="stat-number">{{ user_messages }}</div>
+        <div class="stat-info">{{ user_messages|default:0|floatformat:0 }}% of total</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">AI Responses</div>
+        <div class="stat-number">{{ ai_messages }}</div>
+        <div class="stat-info">{{ ai_messages|default:0|floatformat:0 }}% of total</div>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-container">
+        <div class="chart-title">Chat Sessions by Day</div>
+        <canvas id="sessionsChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">Message Types</div>
+        <canvas id="messageTypesChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-container">
+        <div class="chart-title">Language Distribution (Sessions)</div>
+        <canvas id="languageChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">Product Mentions in Chats</div>
+        <canvas id="productMentionsChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- Product Statistics -->
+    <h2 class="section-heading">Product Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Products</div>
+        <div class="stat-number">{{ total_products }}</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Products Mentioned</div>
+        <div class="stat-number">{{ messages_with_products }}</div>
+        <div class="stat-info">{{ percent_with_products }}% of conversations</div>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="top-list">
+        <div class="top-list-title">Top Mentioned Products</div>
+        {% if top_products %}
+          {% for product in top_products %}
+            <div class="top-list-item">
+              <span class="top-list-item-label">{{ product.name }}</span>
+              <span class="top-list-item-value">{{ product.mention_count }} mentions</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="empty-state">No product mentions in this period</p>
+        {% endif %}
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">Products by Category</div>
+        <canvas id="productsByCategoryChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- User Statistics -->
+    <h2 class="section-heading">User Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-number">{{ total_users }}</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">WhatsApp Groups</div>
+        <div class="stat-number">{{ total_groups }}</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Group Membership</div>
+        <div class="stat-number">{{ users_with_groups }}</div>
+        <div class="stat-info">Users who joined groups</div>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-container">
+        <div class="chart-title">User Language Preferences</div>
+        <canvas id="userLanguageChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">Category Interests</div>
+        <canvas id="categoryInterestsChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-container">
+        <div class="chart-title">WhatsApp Group Membership</div>
+        <canvas id="whatsappMembershipChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- Metadata -->
+    <div class="metadata">
+      <p>Data last updated: {{ last_updated }}</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle custom date inputs when date range is changed
+    const dateRangeSelect = document.getElementById('date-range');
+    const customDateInputs = document.getElementById('custom-date-inputs');
+    
+    dateRangeSelect.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customDateInputs.style.display = 'flex';
+      } else {
+        customDateInputs.style.display = 'none';
+      }
+    });
+    
+    // Initialize charts
+    initCharts();
+    
+    // Handle responsive charts on window resize
+    window.addEventListener('resize', function() {
+      setTimeout(function() {
+        initCharts();
+      }, 250);
+    });
+  });
+  
+  function initCharts() {
+    // Chat Sessions by Day Chart
+    const sessionsCtx = document.getElementById('sessionsChart');
+    if (sessionsCtx) {
+      if (sessionsCtx.chart) sessionsCtx.chart.destroy();
+      
+      const ctx = sessionsCtx.getContext('2d');
+      sessionsCtx.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ date_labels|safe }},
+          datasets: [{
+            label: 'Sessions',
+            data: {{ session_counts|safe }},
+            backgroundColor: 'rgba(65, 118, 144, 0.2)',
+            borderColor: 'rgba(65, 118, 144, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          }
+        }
+      });
+    }
+    
+    // Message Types Chart
+    const messageTypesCtx = document.getElementById('messageTypesChart');
+    if (messageTypesCtx) {
+      if (messageTypesCtx.chart) messageTypesCtx.chart.destroy();
+      
+      const ctx = messageTypesCtx.getContext('2d');
+      messageTypesCtx.chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['User Messages', 'AI Responses'],
+          datasets: [{
+            data: [{{ user_messages }}, {{ ai_messages }}],
+            backgroundColor: [
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(54, 162, 235, 0.7)'
+            ],
+            borderColor: [
+              'rgba(255, 159, 64, 1)',
+              'rgba(54, 162, 235, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: window.innerWidth < 768 ? 'bottom' : 'right'
+            }
+          }
+        }
+      });
+    }
+    
+    // Language Distribution Chart
+    const languageCtx = document.getElementById('languageChart');
+    if (languageCtx) {
+      if (languageCtx.chart) languageCtx.chart.destroy();
+      
+      const ctx = languageCtx.getContext('2d');
+      languageCtx.chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: {{ language_labels|safe }},
+          datasets: [{
+            data: {{ language_counts|safe }},
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)'
+            ],
+            borderColor: [
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: window.innerWidth < 768 ? 'bottom' : 'right'
+            }
+          }
+        }
+      });
+    }
+    
+    // Product Mentions Chart
+    const productMentionsCtx = document.getElementById('productMentionsChart');
+    if (productMentionsCtx) {
+      if (productMentionsCtx.chart) productMentionsCtx.chart.destroy();
+      
+      const ctx = productMentionsCtx.getContext('2d');
+      productMentionsCtx.chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['With Products', 'Without Products'],
+          datasets: [{
+            data: [{{ messages_with_products }}, {{ total_messages }} - {{ messages_with_products }}],
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(201, 203, 207, 0.7)'
+            ],
+            borderColor: [
+              'rgba(75, 192, 192, 1)',
+              'rgba(201, 203, 207, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: window.innerWidth < 768 ? 'bottom' : 'right'
+            }
+          }
+        }
+      });
+    }
+    
+    // Products by Category Chart
+    const productsByCategoryCtx = document.getElementById('productsByCategoryChart');
+    if (productsByCategoryCtx) {
+      if (productsByCategoryCtx.chart) productsByCategoryCtx.chart.destroy();
+      
+      const ctx = productsByCategoryCtx.getContext('2d');
+      productsByCategoryCtx.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: {{ category_names|safe }},
+          datasets: [{
+            label: 'Products',
+            data: {{ category_product_counts|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+    
+    // User Language Chart
+    const userLanguageCtx = document.getElementById('userLanguageChart');
+    if (userLanguageCtx) {
+      if (userLanguageCtx.chart) userLanguageCtx.chart.destroy();
+      
+      const ctx = userLanguageCtx.getContext('2d');
+      userLanguageCtx.chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: {{ user_language_labels|safe }},
+          datasets: [{
+            data: {{ user_language_counts|safe }},
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)'
+            ],
+            borderColor: [
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: window.innerWidth < 768 ? 'bottom' : 'right'
+            }
+          }
+        }
+      });
+    }
+    
+    // Category Interests Chart
+    const categoryInterestsCtx = document.getElementById('categoryInterestsChart');
+    if (categoryInterestsCtx) {
+      if (categoryInterestsCtx.chart) categoryInterestsCtx.chart.destroy();
+      
+      const ctx = categoryInterestsCtx.getContext('2d');
+      categoryInterestsCtx.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: {{ category_interest_names|safe }},
+          datasets: [{
+            label: 'Interested Users',
+            data: {{ category_interest_counts|safe }},
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+    
+    // WhatsApp Membership Chart
+    const whatsappMembershipCtx = document.getElementById('whatsappMembershipChart');
+    if (whatsappMembershipCtx) {
+      if (whatsappMembershipCtx.chart) whatsappMembershipCtx.chart.destroy();
+      
+      const ctx = whatsappMembershipCtx.getContext('2d');
+      whatsappMembershipCtx.chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Joined Group', 'Not Joined'],
+          datasets: [{
+            data: [{{ users_with_groups }}, {{ users_without_groups }}],
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(201, 203, 207, 0.7)'
+            ],
+            borderColor: [
+              'rgba(75, 192, 192, 1)',
+              'rgba(201, 203, 207, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: window.innerWidth < 768 ? 'bottom' : 'right'
+            }
+          }
+        }
+      });
+    }
+  }
+</script>
+{% endblock %}

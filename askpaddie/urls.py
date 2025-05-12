@@ -18,7 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/askpaddie2025/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('', include('chatbot.urls')),
 ]
+
+handler404 = 'accounts.views.handler404'
+handler500 = 'accounts.views.handler500'
+handler403 = 'accounts.views.handler403'
+handler400 = 'accounts.views.handler400'

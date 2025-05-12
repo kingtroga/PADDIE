@@ -132,3 +132,15 @@ def whatsapp_groups(request):
         'local_groups': local_groups.exclude(id__in=lga_groups.values_list('id', flat=True)),
         'national_groups': national_groups
     })
+
+def handler404(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+def handler500(request):
+    return render(request, 'errors/500.html', status=500)
+
+def handler403(request, exception):
+    return render(request, 'errors/403.html', status=403)
+
+def handler400(request, exception):
+    return render(request, 'errors/400.html', status=400)
