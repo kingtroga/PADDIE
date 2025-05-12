@@ -1,0 +1,593 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Sign Up - AskPaddie{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-8 sm:py-12 md:py-16">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Join AskPaddie</h1>
+            <p class="text-lg sm:text-xl text-gray-300">Our Safety Buddy, Always Ready To Help.</p>
+        </div>
+    </div>
+</div>
+
+<div class="bg-gray-50 py-8 sm:py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        {% if form.errors %}
+            <div class="mb-6 p-4 bg-red-50 border border-red-300 rounded-lg text-sm text-red-600">
+                <p class="font-medium">Please correct the errors below:</p>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ field.label }}: {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="POST" class="space-y-6" id="signupForm">
+            {% csrf_token %}
+            
+            <!-- Account Information -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4 sm:mb-6">
+                <div class="bg-primary px-4 sm:px-6 py-3 sm:py-4">
+                    <h3 class="text-lg sm:text-xl font-medium text-white">Account Information</h3>
+                </div>
+                <div class="px-4 sm:px-6 py-4 sm:py-6 space-y-4">
+                    {% for field in user_form %}
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ field.label }}
+                            </label>
+                            {{ field.errors }}
+                            {% if field.name == 'password1' %}
+                                <div class="relative">
+                                    {{ field }}
+                                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer toggle-password">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <!-- Password Requirements -->
+                                <div class="mt-3 space-y-2" id="password-requirements">
+                                    <p class="text-sm font-medium text-gray-700">Password requirements:</p>
+                                    <ul class="text-sm space-y-1">
+                                        <li id="req-length" class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                            </svg>
+                                            At least 8 characters
+                                        </li>
+                                        <li id="req-uppercase" class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                            </svg>
+                                            Uppercase letter
+                                        </li>
+                                        <li id="req-lowercase" class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                            </svg>
+                                            Lowercase letter
+                                        </li>
+                                        <li id="req-number" class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                            </svg>
+                                            Number
+                                        </li>
+                                        <li id="req-special" class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                            </svg>
+                                            Special character
+                                        </li>
+                                    </ul>
+                                    
+                                    <!-- Password Strength Meter -->
+                                    <div class="mt-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span>Password strength:</span>
+                                            <span id="password-strength-text" class="font-medium">Weak</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                            <div id="password-strength-meter" class="h-2 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% elif field.name == 'password2' %}
+                                <div class="relative">
+                                    {{ field }}
+                                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer toggle-password">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="password-match-feedback" class="hidden mt-1 text-sm"></div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.help_text and field.name != 'password1' %}
+                                <p class="text-xs sm:text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4 sm:mb-6">
+                <div class="bg-primary px-4 sm:px-6 py-3 sm:py-4">
+                    <h3 class="text-lg sm:text-xl font-medium text-white">Personal Information</h3>
+                </div>
+                <div class="px-4 sm:px-6 py-4 sm:py-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- Full Name -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.full_name.label }}
+                            </label>
+                            {{ profile_form.full_name.errors }}
+                            {{ profile_form.full_name }}
+                        </div>
+                        
+                        <!-- WhatsApp Number -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.whatsapp_number.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.whatsapp_number.label }}
+                            </label>
+                            {{ profile_form.whatsapp_number.errors }}
+                            {{ profile_form.whatsapp_number }}
+                            <p class="text-xs sm:text-sm text-gray-500">This is our primary way to contact you</p>
+                        </div>
+                        
+                        <!-- State -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.state.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.state.label }}
+                            </label>
+                            {{ profile_form.state.errors }}
+                            {{ profile_form.state }}
+                        </div>
+                        
+                        <!-- LGA -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.lga.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.lga.label }}
+                            </label>
+                            {{ profile_form.lga.errors }}
+                            {{ profile_form.lga }}
+                            <p class="text-xs sm:text-sm text-gray-500">Local Government Area, Neighborhood or Estate</p>
+                        </div>
+                        
+                        <!-- Occupation -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.occupation.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.occupation.label }}
+                            </label>
+                            {{ profile_form.occupation.errors }}
+                            {{ profile_form.occupation }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preferences -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4 sm:mb-6">
+                <div class="bg-primary px-4 sm:px-6 py-3 sm:py-4">
+                    <h3 class="text-lg sm:text-xl font-medium text-white">Preferences</h3>
+                </div>
+                <div class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+                    <!-- Categories of Interest -->
+                    <div class="space-y-1 sm:space-y-2 categories-container">
+                        <label class="block text-sm font-medium text-gray-700">
+                            Categories of Interest:
+                        </label>
+                        {{ profile_form.categories_of_interest.errors }}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 mt-2">
+                            {% for checkbox in profile_form.categories_of_interest %}
+                                <label class="inline-flex items-center">
+                                    {{ checkbox.tag }}
+                                    <span class="ml-2 text-sm">{{ checkbox.choice_label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Preferred Language -->
+                    <div class="space-y-1 sm:space-y-2">
+                        <label for="{{ profile_form.preferred_language.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ profile_form.preferred_language.label }}
+                        </label>
+                        {{ profile_form.preferred_language.errors }}
+                        {{ profile_form.preferred_language }}
+                    </div>
+                    
+                    <!-- Join WhatsApp Group -->
+                    <div class="space-y-1 sm:space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="join_whatsapp_group" id="id_join_whatsapp_group" class="rounded border-gray-300 text-primary focus:ring-primary">
+                            <span class="ml-2 text-sm">Join Local WhatsApp Safety Group?</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="bg-secondary hover:bg-secondary-dark text-dark font-bold py-2.5 sm:py-3 px-8 sm:px-12 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                    Sign Up
+                </button>
+                
+                <p class="mt-4 text-xs sm:text-sm text-gray-600">
+                    Already have an account? <a href="{% url 'login' %}" class="text-primary hover:underline font-medium">Log in</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Style form fields to match Paddie design with enhanced responsiveness */
+    input[type="text"], 
+    input[type="password"],
+    input[type="email"],
+    select {
+        @apply w-full border border-gray-300 rounded-md py-2.5 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    }
+    
+    input[type="checkbox"] {
+        @apply w-4 h-4 text-primary focus:ring-primary rounded border-gray-300;
+    }
+    
+    ul.errorlist {
+        @apply text-red-500 text-xs sm:text-sm mt-1 list-none p-0;
+    }
+    
+    /* Password strength colors */
+    .strength-weak {
+        @apply bg-red-500;
+    }
+    
+    .strength-fair {
+        @apply bg-orange-400;
+    }
+    
+    .strength-medium {
+        @apply bg-yellow-400;
+    }
+    
+    .strength-good {
+        @apply bg-lime-400;
+    }
+    
+    .strength-strong {
+        @apply bg-green-500;
+    }
+    
+    /* Password strength text colors */
+    .text-strength-weak {
+        @apply text-red-600;
+    }
+    
+    .text-strength-fair {
+        @apply text-orange-600;
+    }
+    
+    .text-strength-medium {
+        @apply text-yellow-600;
+    }
+    
+    .text-strength-good {
+        @apply text-lime-600;
+    }
+    
+    .text-strength-strong {
+        @apply text-green-600;
+    }
+    
+    /* Make form elements more touch-friendly on mobile */
+    @media (max-width: 640px) {
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"],
+        select,
+        button[type="submit"] {
+            @apply py-3; /* Larger touch targets on mobile */
+        }
+    }
+
+    /* Required field indicator */
+    .required-star {
+        @apply text-red-500 ml-1;
+    }
+    
+    /* Make form elements more touch-friendly on mobile */
+    @media (max-width: 640px) {
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"],
+        select,
+        button[type="submit"] {
+            @apply py-3; /* Larger touch targets on mobile */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password toggle visibility
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.closest('div').querySelector('input');
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                
+                // Toggle icon
+                if (type === 'text') {
+                    this.classList.add('text-primary');
+                } else {
+                    this.classList.remove('text-primary');
+                }
+            });
+        });
+        
+        // Password validation
+        const passwordInput = document.querySelector('#id_password1');
+        const confirmInput = document.querySelector('#id_password2');
+        const matchFeedback = document.querySelector('#password-match-feedback');
+        
+        // Elements for requirements
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqLowercase = document.getElementById('req-lowercase');
+        const reqNumber = document.getElementById('req-number');
+        const reqSpecial = document.getElementById('req-special');
+        
+        const strengthBar = document.getElementById('password-strength-meter');
+        const strengthText = document.getElementById('password-strength-text');
+        
+        if (passwordInput) {
+            // Initial validation
+            validatePassword();
+            // Add event listener for changes
+            passwordInput.addEventListener('input', validatePassword);
+        }
+        
+        if (confirmInput) {
+            confirmInput.addEventListener('input', function() {
+                validatePasswordMatch();
+            });
+        }
+        
+        // Make all fields required except WhatsApp Group checkbox
+        const allInputs = document.querySelectorAll('input:not([type="checkbox"]), select');
+        allInputs.forEach(input => {
+            input.required = true;
+            
+            // Add more visible required indicator to labels
+            const labelFor = input.id;
+            const label = document.querySelector(`label[for="${labelFor}"]`);
+            if (label && !label.querySelector('.required-star')) {
+                label.innerHTML += '<span class="required-star text-red-500 ml-1">*</span>';
+            }
+        });
+        
+        // Categories of interest validation
+        const categoriesCheckboxes = document.querySelectorAll('input[name^="categories_of_interest"]');
+        const categoriesContainer = document.querySelector('.categories-container') || 
+                                   categoriesCheckboxes.length > 0 ? 
+                                   categoriesCheckboxes[0].closest('.space-y-1') : null;
+        
+        let categoriesError = document.createElement('p');
+        categoriesError.className = 'text-red-500 text-xs sm:text-sm mt-1 hidden';
+        categoriesError.id = 'categories-error';
+        categoriesError.textContent = 'Please select at least one category of interest';
+        
+        if (categoriesContainer) {
+            categoriesContainer.appendChild(categoriesError);
+            
+            // Add required indicator to label
+            const categoryLabel = categoriesContainer.querySelector('label');
+            if (categoryLabel && !categoryLabel.querySelector('.required-star')) {
+                categoryLabel.innerHTML += '<span class="required-star text-red-500 ml-1">*</span>';
+            }
+        }
+        
+        // Form validation before submit
+        const form = document.getElementById('signupForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                // Check if at least one category is selected
+                let categorySelected = false;
+                categoriesCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        categorySelected = true;
+                    }
+                });
+                
+                if (!categorySelected) {
+                    isValid = false;
+                    categoriesError.classList.remove('hidden');
+                    // Scroll to categories section
+                    categoriesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    categoriesError.classList.add('hidden');
+                }
+                
+                // Check password match
+                if (passwordInput && confirmInput) {
+                    if (passwordInput.value !== confirmInput.value) {
+                        isValid = false;
+                        matchFeedback.classList.remove('hidden');
+                        matchFeedback.textContent = 'Passwords do not match';
+                        matchFeedback.classList.remove('text-green-600');
+                        matchFeedback.classList.add('text-red-600');
+                        confirmInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                
+                // Check password strength
+                if (passwordInput) {
+                    const password = passwordInput.value;
+                    
+                    const hasLength = password.length >= 8;
+                    const hasUppercase = /[A-Z]/.test(password);
+                    const hasLowercase = /[a-z]/.test(password);
+                    const hasNumber = /[0-9]/.test(password);
+                    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+                    
+                    if (!hasLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+                        isValid = false;
+                        passwordInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        // Add category checkbox change listener
+        categoriesCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                let categorySelected = false;
+                categoriesCheckboxes.forEach(cb => {
+                    if (cb.checked) {
+                        categorySelected = true;
+                    }
+                });
+                
+                if (categorySelected) {
+                    categoriesError.classList.add('hidden');
+                }
+            });
+        });
+        
+        function validatePassword() {
+            const password = passwordInput.value;
+            
+            // Check requirements
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            
+            // Update requirement indicators
+            updateRequirement(reqLength, hasLength);
+            updateRequirement(reqUppercase, hasUppercase);
+            updateRequirement(reqLowercase, hasLowercase);
+            updateRequirement(reqNumber, hasNumber);
+            updateRequirement(reqSpecial, hasSpecial);
+            
+            // Calculate strength score (0-5)
+            let strength = 0;
+            if (hasLength) strength++;
+            if (hasUppercase) strength++;
+            if (hasLowercase) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+            
+            // Update strength bar
+            const percentage = (strength / 5) * 100;
+            strengthBar.style.width = `${percentage}%`;
+            
+            // Remove existing classes
+            strengthBar.classList.remove('bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500');
+            
+            // Add color class based on strength
+            if (strength <= 1) {
+                strengthBar.classList.add('bg-red-500');
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'font-medium text-red-600';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('bg-orange-400');
+                strengthText.textContent = 'Fair';
+                strengthText.className = 'font-medium text-orange-600';
+            } else if (strength <= 3) {
+                strengthBar.classList.add('bg-yellow-400');
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'font-medium text-yellow-600';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('bg-lime-400');
+                strengthText.textContent = 'Good';
+                strengthText.className = 'font-medium text-lime-600';
+            } else {
+                strengthBar.classList.add('bg-green-500');
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'font-medium text-green-600';
+            }
+            
+            // If confirm password has a value, validate match
+            if (confirmInput && confirmInput.value) {
+                validatePasswordMatch();
+            }
+        }
+        
+        function validatePasswordMatch() {
+            if (!confirmInput || !passwordInput) return;
+            
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            if (confirm) {
+                matchFeedback.classList.remove('hidden');
+                
+                if (password === confirm) {
+                    matchFeedback.textContent = 'Passwords match';
+                    matchFeedback.classList.remove('text-red-600');
+                    matchFeedback.classList.add('text-green-600');
+                    confirmInput.classList.remove('border-red-500');
+                    confirmInput.classList.add('border-green-500');
+                } else {
+                    matchFeedback.textContent = 'Passwords do not match';
+                    matchFeedback.classList.remove('text-green-600');
+                    matchFeedback.classList.add('text-red-600');
+                    confirmInput.classList.remove('border-green-500');
+                    confirmInput.classList.add('border-red-500');
+                }
+            } else {
+                matchFeedback.classList.add('hidden');
+                confirmInput.classList.remove('border-red-500', 'border-green-500');
+            }
+        }
+        
+        function updateRequirement(element, isValid) {
+            if (!element) return;
+            
+            if (isValid) {
+                element.innerHTML = `
+                    <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-green-700">${element.textContent.trim()}</span>
+                `;
+            } else {
+                element.innerHTML = `
+                    <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                    </svg>
+                    <span class="text-gray-500">${element.textContent.trim()}</span>
+                `;
+            }
+        }
+    });
+</script>
+{% endblock %}

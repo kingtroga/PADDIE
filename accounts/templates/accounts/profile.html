@@ -1,0 +1,158 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Your Profile - AskPaddie{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 py-8 sm:py-10 md:py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Your AskPaddie Profile</h2>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6 sm:mb-8">
+            <div class="bg-primary px-4 sm:px-6 py-3 sm:py-4">
+                <h3 class="text-lg sm:text-xl font-medium text-white">Personal Information</h3>
+            </div>
+            <div class="px-4 sm:px-6 py-4 sm:py-6">
+                <form method="POST" class="space-y-4 sm:space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- Full Name -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.full_name.label }}
+                            </label>
+                            {{ profile_form.full_name.errors }}
+                            {{ profile_form.full_name }}
+                        </div>
+                        
+                        <!-- WhatsApp Number -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.whatsapp_number.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.whatsapp_number.label }}
+                            </label>
+                            {{ profile_form.whatsapp_number.errors }}
+                            {{ profile_form.whatsapp_number }}
+                        </div>
+                        
+                        <!-- State -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.state.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.state.label }}
+                            </label>
+                            {{ profile_form.state.errors }}
+                            {{ profile_form.state }}
+                        </div>
+                        
+                        <!-- LGA -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.lga.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.lga.label }}
+                            </label>
+                            {{ profile_form.lga.errors }}
+                            {{ profile_form.lga }}
+                        </div>
+                        
+                        <!-- Occupation -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.occupation.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.occupation.label }}
+                            </label>
+                            {{ profile_form.occupation.errors }}
+                            {{ profile_form.occupation }}
+                        </div>
+                        
+                        <!-- Preferred Language -->
+                        <div class="space-y-1 sm:space-y-2">
+                            <label for="{{ profile_form.preferred_language.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ profile_form.preferred_language.label }}
+                            </label>
+                            {{ profile_form.preferred_language.errors }}
+                            {{ profile_form.preferred_language }}
+                        </div>
+                    </div>
+                    
+                    <!-- Categories of Interest -->
+                    <div class="mt-4 sm:mt-6">
+                        <h4 class="text-base sm:text-lg font-medium text-gray-800 mb-2 sm:mb-3">Safety Categories of Interest</h4>
+                        
+                        <div class="space-y-1 sm:space-y-2">
+                            {{ profile_form.categories_of_interest.errors }}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
+                                {% for checkbox in profile_form.categories_of_interest %}
+                                    <label class="inline-flex items-center">
+                                        {{ checkbox.tag }}
+                                        <span class="ml-2 text-sm">{{ checkbox.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4 sm:pt-6">
+                        <button type="submit" class="bg-secondary hover:bg-secondary-dark text-dark font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                            Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if whatsapp_groups %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-primary px-4 sm:px-6 py-3 sm:py-4">
+                <h3 class="text-lg sm:text-xl font-medium text-white">Your WhatsApp Safety Groups</h3>
+            </div>
+            <div class="px-4 sm:px-6 py-4 sm:py-6">
+                {% for group in whatsapp_groups %}
+                <div class="flex flex-col sm:flex-row items-center sm:items-start {% if not forloop.last %}mb-6 pb-6 border-b border-gray-200{% endif %}">
+                    <div class="flex-shrink-0 mb-3 sm:mb-0">
+                        <svg class="h-8 w-8 sm:h-10 sm:w-10 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.887-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375c-.99-1.576-1.516-3.391-1.516-5.26 0-5.445 4.455-9.885 9.942-9.885 2.654 0 5.145 1.035 7.021 2.91 1.875 1.859 2.909 4.35 2.909 6.99-.004 5.444-4.46 9.885-9.935 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652c1.746.943 3.71 1.444 5.71 1.447h.006c6.585 0 11.946-5.336 11.949-11.896 0-3.176-1.24-6.165-3.495-8.411"/>
+                        </svg>
+                    </div>
+                    <div class="sm:ml-4 text-center sm:text-left">
+                        <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-1 sm:mb-2">{{ group.name }}</h4>
+                        <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{{ group.description }}</p>
+                        <a href="{{ group.link }}" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm sm:text-base">
+                            Join Group
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Style form fields to match Paddie design with enhanced responsiveness */
+    input[type="text"], 
+    input[type="password"],
+    input[type="email"],
+    select {
+        @apply w-full border border-gray-300 rounded-md py-2.5 sm:py-3 px-3 sm:px-4 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    }
+    
+    input[type="checkbox"] {
+        @apply w-4 h-4 text-primary focus:ring-primary rounded border-gray-300;
+    }
+    
+    ul.errorlist {
+        @apply text-red-500 text-xs sm:text-sm mt-1 list-none p-0;
+    }
+    
+    /* Make form elements more touch-friendly on mobile */
+    @media (max-width: 640px) {
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"],
+        select,
+        button[type="submit"] {
+            @apply py-3; /* Larger touch targets on mobile */
+        }
+    }
+</style>
+{% endblock %}
