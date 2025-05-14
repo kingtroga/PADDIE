@@ -156,3 +156,81 @@
     }
 </style>
 {% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stateSelect = document.getElementById('id_state');
+        const lgaSelect = document.getElementById('id_lga');
+        
+        if (stateSelect && lgaSelect) {
+            // Store the initial LGA value to restore it later if possible
+            const initialLga = lgaSelect.value;
+            
+            // Function to update LGA options based on selected state
+            function updateLGAOptions() {
+                const selectedState = stateSelect.value;
+                
+                // Show loading indicator
+                lgaSelect.disabled = true;
+                
+                // Fetch LGAs for the selected state
+                fetch(`/accounts/get-lgas/?state=${encodeURIComponent(selectedState)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear existing options
+                        lgaSelect.innerHTML = '';
+                        
+                        if (data.lgas && data.lgas.length > 0) {
+                            // Add default option
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = '-- Select LGA --';
+                            lgaSelect.appendChild(defaultOption);
+                            
+                            // Add LGAs for the selected state
+                            data.lgas.forEach(lga => {
+                                const option = document.createElement('option');
+                                option.value = lga;
+                                option.textContent = lga;
+                                lgaSelect.appendChild(option);
+                                
+                                // If this was the initially selected LGA, select it again
+                                if (lga === initialLga) {
+                                    option.selected = true;
+                                }
+                            });
+                        } else {
+                            // Add a default option if no LGAs found
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = '-- Select LGA --';
+                            lgaSelect.appendChild(defaultOption);
+                        }
+                        
+                        // Re-enable the LGA select
+                        lgaSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching LGAs:', error);
+                        lgaSelect.disabled = false;
+                        
+                        // Add a default option in case of error
+                        lgaSelect.innerHTML = '';
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = '-- Select LGA --';
+                        lgaSelect.appendChild(defaultOption);
+                    });
+            }
+            
+            // Update LGA options when state changes
+            stateSelect.addEventListener('change', updateLGAOptions);
+            
+            // Initialize LGA options if state already has a value (for existing profiles)
+            if (stateSelect.value) {
+                updateLGAOptions();
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -590,4 +590,60 @@
         }
     });
 </script>
+<script>
+// Make sure this script is in your register.html template
+document.addEventListener('DOMContentLoaded', function() {
+    const stateSelect = document.getElementById('id_state');
+    const lgaSelect = document.getElementById('id_lga');
+    
+    if (stateSelect && lgaSelect) {
+        function updateLGAOptions() {
+            const selectedState = stateSelect.value;
+            
+            // Show loading indicator
+            lgaSelect.disabled = true;
+            
+            fetch(`/accounts/get-lgas/?state=${encodeURIComponent(selectedState)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing options
+                    lgaSelect.innerHTML = '';
+                    
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- Select LGA --';
+                    lgaSelect.appendChild(defaultOption);
+                    
+                    if (data.lgas && data.lgas.length > 0) {
+                        // Add LGAs for the selected state
+                        data.lgas.forEach(lga => {
+                            const option = document.createElement('option');
+                            option.value = lga;
+                            option.textContent = lga;
+                            lgaSelect.appendChild(option);
+                        });
+                        
+                        console.log(`Added ${data.lgas.length} LGAs for ${selectedState}`);
+                    }
+                    
+                    // Re-enable the LGA select
+                    lgaSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching LGAs:', error);
+                    lgaSelect.disabled = false;
+                });
+        }
+        
+        // Update LGA options when state changes
+        stateSelect.addEventListener('change', updateLGAOptions);
+        
+        // Initialize LGA options if state already has a value
+        if (stateSelect.value) {
+            updateLGAOptions();
+        }
+    }
+});
+</script>
 {% endblock %}

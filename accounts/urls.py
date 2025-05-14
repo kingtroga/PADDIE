@@ -17,4 +17,5 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('whatsapp-groups/', views.whatsapp_groups, name='whatsapp_groups'),
     path('join-whatsapp-group/', views.join_whatsapp_group, name='join_whatsapp_group'),
+    path('get-lgas/', views.get_lgas, name='get_lgas'),
 ]

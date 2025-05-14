@@ -1,17 +1,14 @@
-from django.shortcuts import render
-
-# Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm, UserProfileForm
 from .models import WhatsAppGroup
 from django.contrib.auth import logout
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.http import require_POST
 import json
+from .nigeria_data import NIGERIAN_LGAS, get_lgas_for_state
 
 @require_http_methods(["GET", "POST"])
 def custom_logout(request):
@@ -35,11 +32,24 @@ def custom_logout(request):
     # Redirect to login page
     return response
 
+
 def register(request):
     if request.method == 'POST':
         user_form = UserRegisterForm(request.POST)
+        
+        # Get the submitted state and lga
+        submitted_state = request.POST.get('state')
+        submitted_lga = request.POST.get('lga')
+        
+        # Create profile form with POST data
         profile_form = UserProfileForm(request.POST)
         
+        # If state is submitted, make sure the lga choices include the submitted lga
+        if submitted_state and submitted_lga and submitted_state in NIGERIAN_LGAS:
+            # Add the submitted LGA to the choices if it's valid for the state
+            if submitted_lga in NIGERIAN_LGAS[submitted_state]:
+                profile_form.fields['lga'].choices = get_lgas_for_state(submitted_state)
+                
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
             
@@ -78,10 +88,12 @@ def register(request):
     
     return render(request, 'accounts/register.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'nigeria_lgas_data': NIGERIAN_LGAS
     })
 
 
+# Updated profile view
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -101,8 +113,20 @@ def profile(request):
     
     return render(request, 'accounts/profile.html', {
         'profile_form': profile_form,
-        'whatsapp_groups': whatsapp_groups
+        'whatsapp_groups': whatsapp_groups,
+        'nigeria_lgas_data': NIGERIAN_LGAS  # Pass LGA data to template
     })
+
+# Add an AJAX endpoint to get LGAs for a state
+@require_http_methods(["GET"])
+def get_lgas(request):
+    state = request.GET.get('state')
+    if state in NIGERIAN_LGAS:
+        return JsonResponse({
+            'lgas': NIGERIAN_LGAS[state]
+        })
+    return JsonResponse({'lgas': []})
+
 
 @login_required
 def whatsapp_groups(request):
